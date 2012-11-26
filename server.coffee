@@ -1,15 +1,23 @@
 SSHClient = require './ssh_client'
 io = require 'socket.io'
-fs = require 'fs'
 
-client = new SSHClient({
-  host: '192.168.88.86',
-  port: 22,
-  username: 'ivaaan',
-  password: 'supervanea'
-})
+ws = io.listen(8001)
+ws.set 'log level', 1
 
-client.on 'ready', ->
-  console.log 'client is ready'
-  client.execute 'uptime', (output)->
-    console.log output.toString()
+
+ws.sockets.on 'connection', (socket)->
+  client = null
+
+  socket.on 'init', (ssh_data)->
+    client = new SSHClient(ssh_data)
+    client.on 'ready', -> socket.emit 'ssh_ready'
+
+  socket.on 'cmd', (cmd)->
+    if client is null
+      socket.emit 'cmd_result', {cmd: cmd, error: 'You need to initiate a connection first'}
+    else
+      client.execute cmd, (output)->
+        socket.emit 'cmd_result', {cmd: cmd, result: output.toString()}
+
+  socket.on 'disconnect', ->
+    client.disconnect() unless client is null

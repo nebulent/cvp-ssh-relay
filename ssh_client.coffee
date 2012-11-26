@@ -7,9 +7,9 @@ streamHandlerGenerator = (ssh, callback)->
     stream.on 'data', (data, ext)->
       callback(data)
 
-    stream.on 'exit', (code,signal)->
-      console.log 'exit', code, signal
-      ssh.end()
+    stream.on 'exit', (code, signal)->
+      #console.log 'exit', code, signal
+      #ssh.end()
 
 
 class SSHClient
