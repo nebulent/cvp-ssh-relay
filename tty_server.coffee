@@ -16,8 +16,8 @@ sshOptions = (user, host, port)->
   [
     "#{user}@#{host}",
     "-p #{port}",
-    "-o 'UserKnownHostsFile /dev/null'",
-    "-o 'StrictHostKeyChecking no'"
+    "-o UserKnownHostsFile /tmp/cvp_known_hosts",
+    "-o StrictHostKeyChecking no"
   ]
 
 ws.sockets.on 'connection', (socket)->
