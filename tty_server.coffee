@@ -12,6 +12,14 @@ validCredentials = (credentials)->
     return false unless (user and host and port)
     true
 
+sshOptions = (user, host, port)->
+  [
+    "#{user}@#{host}",
+    "-p #{port}",
+    "-o 'UserKnownHostsFile /dev/null'",
+    "-o 'StrictHostKeyChecking no'"
+  ]
+
 ws.sockets.on 'connection', (socket)->
   term = null
 
@@ -23,7 +31,7 @@ ws.sockets.on 'connection', (socket)->
     host = credentials.host
     port = credentials.port
 
-    term = pty.fork('ssh', ["#{user}@#{host}", "-p #{port}"], {
+    term = pty.fork('ssh', sshOptions(user, host, port), {
       name: 'xterm',
       cols: 80,
       rows: 24,
