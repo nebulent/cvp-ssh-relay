@@ -6,7 +6,7 @@ validCredentials = (credentials)->
     user = credentials.user
     host = credentials.host
     port = credentials.port
-    password = credentials.password
+    password = credentials.credentials
     return false unless (user and host and port and password)
     true
 
@@ -44,10 +44,13 @@ defineProtocol = (socket, tokenStore)->
   term = null
   error = (reason)->
     socket.emit 'tty_error', reason
+    socket.disconnect()
     term?.destroy
 
   socket.on 'tty_connect', (token)->
     term = initSession(tokenStore, token, error)
+    return unless term
+
     term.on 'data', (data)->
       socket.emit('data', data)
 
