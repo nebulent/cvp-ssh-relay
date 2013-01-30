@@ -26,10 +26,9 @@ createTerminal = (ptyOptions)->
     cwd: process.env.HOME
   })
 
-initSession = (tokenStore, token, error)->
+initSession = (credentials, error)->
   console.log 'New tty connection'
 
-  credentials = tokenStore.get(token)
   unless credentials
     error('Invalid token')
     return
@@ -40,18 +39,28 @@ initSession = (tokenStore, token, error)->
 
   createTerminal sshOptions(credentials)
 
+buildAutoLogin = (term, creds)->
+  ()->
+    term.write(creds.credentials)
+    term.write("\n")
+
 defineProtocol = (socket, tokenStore)->
   term = null
+  loggedIn = false
   error = (reason)->
     socket.emit 'tty_error', reason
     socket.disconnect()
     term?.destroy
 
   socket.on 'tty_connect', (token)->
-    term = initSession(tokenStore, token, error)
+    credentials = tokenStore.get(token)
+    term = initSession(credentials, error)
     return unless term
 
     term.on 'data', (data)->
+      if not loggedIn
+        setTimeout(buildAutoLogin(term, credentials), 1000)
+        loggedIn = true
       socket.emit('data', data)
 
     console.log 'tty is ready!'
