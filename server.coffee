@@ -3,7 +3,7 @@ connect      = require 'connect'
 route        = require './lib/simple_route'
 tokenStore   = require './lib/token_store'
 ttyServer    = require './lib/tty_server'
-PORT = 8080
+PORT = 3031
 
 tokenHandler = (req, res, next)->
   token = tokenStore.put(req.body)
