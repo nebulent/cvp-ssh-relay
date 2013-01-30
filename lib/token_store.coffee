@@ -10,8 +10,9 @@ class TokenStore
     token = hash JSON.stringify(data)
     @store[token] = data
 
-    expireWrap = ()=> @expireToken(token)
+    expireWrap = ()=> @expire(token)
     setInterval expireWrap, @expire
+    token
 
   get: (token)->
     if @store[token] isnt null
