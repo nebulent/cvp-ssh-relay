@@ -1,5 +1,5 @@
 crypto = require 'crypto'
-clone  = require './clone'
+clone  = require 'clone'
 hash   = require './hash'
 
 class TokenStore
