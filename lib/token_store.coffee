@@ -3,20 +3,22 @@ clone  = require 'clone'
 hash   = require './hash'
 
 class TokenStore
-  constructor: (@expire=60000)->
+  constructor: (@expireTimeout=60000)->
     @store  = {}
 
   put: (data)->
-    token = hash JSON.stringify(data)
+    strData = JSON.stringify(data)
+    token = hash strData
     @store[token] = data
+    console.log "#{token} -> #{strData}"
 
     expireWrap = ()=> @expire(token)
-    setInterval expireWrap, @expire
+    setTimeout expireWrap, @expireTimeout
     token
 
   get: (token)->
     if @store[token] isnt null
-      expire token
+      @expire token
     else
       null
 
