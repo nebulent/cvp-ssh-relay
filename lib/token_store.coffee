@@ -21,6 +21,7 @@ class TokenStore
       null
 
   expire: (token)->
+    console.log "Expiring token #{token}"
     data = clone @store[token]
     delete @store[token]
     data

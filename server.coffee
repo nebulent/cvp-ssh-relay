@@ -11,7 +11,7 @@ tokenHandler = (req, res, next)->
 tokenWare = route.post '/token', tokenHandler
 
 welcome = (req, res, next)->
-  res.end 'CVP SSH RELAY.'
+  res.end 'The server is online.'
 welcomeWare = route.get '/', welcome
 
 app = connect()
