@@ -3,7 +3,7 @@ connect      = require 'connect'
 route        = require './lib/simple_route'
 tokenStore   = require './lib/token_store'
 ttyServer    = require './lib/tty_server'
-
+PORT = 8080
 
 tokenHandler = (req, res, next)->
   token = tokenStore.put(req.body)
@@ -21,5 +21,6 @@ app = connect()
   .use(tokenWare)
 
 server = http.createServer(app)
-server.listen(8080)
+server.listen(PORT)
 ttyServer.listen(server, tokenStore)
+console.log "listening on port #{PORT}"
