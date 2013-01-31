@@ -17,6 +17,7 @@ welcomeWare = route.get '/', welcome
 app = connect()
   .use(connect.logger('dev'))
   .use(connect.bodyParser())
+  .use(connect.multipart({uploadDir: './certs'}))
   .use(welcomeWare)
   .use(tokenWare)
 
