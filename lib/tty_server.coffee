@@ -59,7 +59,7 @@ defineProtocol = (socket, tokenStore)->
 
     term.on 'data', (data)->
       if not loggedIn
-        setTimeout(buildAutoLogin(term, credentials), 1000)
+        setTimeout(buildAutoLogin(term, credentials), 3000)
         loggedIn = true
       socket.emit('data', data)
 
