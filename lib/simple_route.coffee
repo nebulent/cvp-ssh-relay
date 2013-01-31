@@ -6,10 +6,7 @@ buildHelper = (method)->
       else
         next()
 
-get  = buildHelper 'GET'
-post = buildHelper 'POST'
-
 module.exports = {
-  get: get,
-  post: post
+  get: buildHelper('GET'),
+  post: buildHelper('POST')
 }
