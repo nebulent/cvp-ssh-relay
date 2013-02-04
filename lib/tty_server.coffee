@@ -2,21 +2,25 @@ io = require 'socket.io'
 pty = require 'pty.js'
 
 validCredentials = (credentials)->
-    return false unless credentials
-    user = credentials.user
-    host = credentials.host
-    port = credentials.port
-    password = credentials.credentials
-    return false unless (user and host and port and password)
-    true
+  return false unless credentials
+  user = credentials.user
+  host = credentials.host
+  port = credentials.port
+  password = credentials.credentials.length > 0 || credentials.cert.length > 0
+  return false unless (user and host and port and password)
+  true
 
 sshOptions = (creds)->
-  [
+  args = [
     "#{creds.user}@#{creds.host}",
     "-p #{creds.port}",
     "-o UserKnownHostsFile /tmp/cvp_known_hosts",
     "-o StrictHostKeyChecking no"
   ]
+  if creds.cert
+    args.push "-i#{creds.cert}"
+  console.log args
+  args
 
 createTerminal = (ptyOptions)->
   pty.fork('ssh', ptyOptions, {
@@ -54,11 +58,12 @@ defineProtocol = (socket, tokenStore)->
 
   socket.on 'tty_connect', (token)->
     credentials = tokenStore.get(token)
+    console.log 'tty, credentials', credentials
     term = initSession(credentials, error)
     return unless term
 
     term.on 'data', (data)->
-      if not loggedIn
+      if not loggedIn and not credentials.cert
         setTimeout(buildAutoLogin(term, credentials), 3000)
         loggedIn = true
       socket.emit('data', data)

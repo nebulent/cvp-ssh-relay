@@ -5,14 +5,12 @@ route        = require './lib/simple_route'
 tokenStore   = require './lib/token_store'
 ttyServer    = require './lib/tty_server'
 
-UPLOAD_PATH = path.join(process.cwd(), 'certs/')
+UPLOAD_PATH = path.join(process.cwd(), 'certs')
 PORT = 3031
 
 tokenHandler = (req, res, next)->
-  token = tokenStore.put(req.body)
-  if req.files
-    console.log 'Certificate found, adding to store'
-    tokenStore.addCertificate(token, req.files)
+  console.log req.files
+  token = tokenStore.put(req.body, req.files)
   res.end(token)
 
 welcome = (req, res, next)->
@@ -21,16 +19,14 @@ welcome = (req, res, next)->
 
 tokenWare = route.post '/token', tokenHandler
 welcomeWare = route.get '/', welcome
-attachmentWare = connect.multipart({
+bodyWare = connect.bodyParser({
   uploadDir: UPLOAD_PATH
-  limit: 1024
 })
 
 
 app = connect()
   .use(connect.logger('dev'))
-  .use(attachmentWare)
-  .use(connect.bodyParser())
+  .use(bodyWare)
   .use(welcomeWare)
   .use(tokenWare)
 

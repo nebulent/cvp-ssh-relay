@@ -3,19 +3,6 @@ clone  = require 'clone'
 fs     = require 'fs'
 hash   = require './hash'
 
-certificates = {
-  map: {}
-  add: (token, filepath)->
-    @map[token] = filepath
-
-  remove: (token)->
-    if @map[token]
-      fs.unlink @map[token]
-      delete @map[token]
-
-}
-
-
 class TokenStore
   constructor: (@expireTimeout=60000)->
     @store  = {}
@@ -23,13 +10,21 @@ class TokenStore
   strForm: (data)->
     new Date().toString() + data['host'] + data['protocol']
 
-  put: (data)->
+  put: (data, files)->
     token = hash @strForm(data)
     @store[token] = data
+
+    if data.certificate_file_name
+      @addCertificate token, files.cert.path
 
     expireWrap = ()=> @expire(token)
     setTimeout expireWrap, @expireTimeout
     token
+
+  addCertificate: (token, path)->
+    pem_name = path
+    fs.chmodSync pem_name, 0o600
+    @store[token].cert = pem_name
 
   get: (token)->
     if @store[token] isnt null
@@ -37,14 +32,18 @@ class TokenStore
     else
       null
 
-  addCertificate: (token, files)->
-    certificates.add(token, files.cert.path)
-
   expire: (token)->
+    return unless @store[token]
+    removeWrap = (file)=>
+      ()-> fs.unlink(file)
+
     console.log "Expiring token #{token}"
     data = clone @store[token]
+
+    if @store[token].cert
+      setTimeout removeWrap(@store[token].cert), 15000
+
     delete @store[token]
-    certificates.remove(token)
     data
 
 
