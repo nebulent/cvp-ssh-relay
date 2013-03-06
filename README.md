@@ -1,4 +1,4 @@
-# CloudViewPortal SSH Relay
+# vNOC Access Management SSH Relay
 
 ## Installing dependencies
 - Make sure you have `node` and `npm` installed
