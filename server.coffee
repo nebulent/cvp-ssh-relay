@@ -1,12 +1,20 @@
-http         = require 'http'
+https        = require 'https'
+fs	     = require 'fs'
 connect      = require 'connect'
 path         = require 'path'
 route        = require './lib/simple_route'
 tokenStore   = require './lib/token_store'
 ttyServer    = require './lib/tty_server'
 
+options = {
+    key:    fs.readFileSync('../server.key'),
+    cert:   fs.readFileSync('../server.crt'),
+    requestCert:        true,
+    rejectUnauthorized: false
+}
+
 UPLOAD_PATH = path.join(process.cwd(), 'certs')
-PORT = 3031
+PORT = 8080
 
 tokenHandler = (req, res, next)->
   console.log req.files
@@ -30,7 +38,7 @@ app = connect()
   .use(welcomeWare)
   .use(tokenWare)
 
-server = http.createServer(app)
+server = https.createServer(options, app)
 server.listen(PORT)
 ttyServer.listen(server, tokenStore)
 console.log "listening on port #{PORT}"
